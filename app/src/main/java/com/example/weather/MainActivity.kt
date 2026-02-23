@@ -2,23 +2,21 @@ package com.example.weather
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.location.Geocoder
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.weather.ui.theme.WeatherTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import java.util.Locale
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,10 +29,24 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val locationPermissionsLauncher =
-                rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
-                { permissions ->
+                rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                     if (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-                        getLocation(fusedLocationClient) { lat, lon -> viewModel.fetchWeather(lat, lon) }
+                        getLocation(fusedLocationClient) { lat, lon ->
+                            viewModel.fetchWeather(lat, lon)
+                            try {
+                                val geocoder = Geocoder(this@MainActivity, Locale.getDefault())
+                                @Suppress("DEPRECATION")
+                                val addresses = geocoder.getFromLocation(lat, lon, 1)
+                                if(!addresses.isNullOrEmpty()){
+                                    val city = addresses[0].locality
+                                    viewModel.setCity(city ?: "Unknown city")
+                                } else {
+                                    viewModel.setCity("Unknown city")
+                                }
+                            } catch (e: Exception) {
+                                viewModel.setCity("Searching error")
+                            }
+                        }
                     } else {
                         viewModel.showLocationError("Location permission denied")
                     }
