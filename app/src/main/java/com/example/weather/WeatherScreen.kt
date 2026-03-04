@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.espresso.base.Default
+import com.example.weather.components.DailyForecastCard
+import com.example.weather.components.HourlyForecastCard
 import com.example.weather.ui.theme.OpenSans
 import com.example.weather.ui.theme.WeatherTheme
 
@@ -105,38 +108,12 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                     )
                 }
                 HourlyForecastCard(hourlyList = viewModel.hourlyForecast)
-            }
-
-    }
-}
-
-@Composable
-fun HourlyForecastCard(hourlyList: List<HourlyInfo>){
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(Color(0xFF232B3E), RoundedCornerShape(16.dp))
-            .padding(start = 1.dp, top = 8.dp, end = 1.dp, bottom = 8.dp)
-    ){
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            items(hourlyList){ info ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Text(text = info.time, color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Icon(imageVector = Icons.Default.Cloud, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = "${info.temp}°", color = Color.White, fontSize = 16.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
-                }
-
+                Spacer(modifier = Modifier.height(12.dp))
+                DailyForecastCard(dailyList = viewModel.dailyForecast)
             }
         }
     }
-}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

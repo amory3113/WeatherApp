@@ -9,6 +9,8 @@ interface WeatherApiService {
         @Query("latitude") lat: Double,
         @Query("longitude") lon: Double,
         @Query("current") current: String = "temperature_2m",
-        @Query("hourly") hourly: String = "temperature_2m"
+        @Query("hourly") hourly: String = "temperature_2m",
+        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min",
+        @Query("timezone") timezone: String = "auto"
     ): WeatherResponse
 }
