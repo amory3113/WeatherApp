@@ -46,7 +46,7 @@ fun HourlyForecastCard(hourlyList: List<HourlyInfo>){
                 ){
                     Text(text = info.time, color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Icon(imageVector = Icons.Default.Cloud, contentDescription = null, tint = Color.White)
+                    Icon(imageVector = info.icon, contentDescription = null, tint = info.tint)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(text = "${info.temp}°", color = Color.White, fontSize = 16.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
                 }

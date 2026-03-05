@@ -8,18 +8,19 @@ data class WeatherResponse(
     val daily: DailyWeather
 )
 data class CurrentWeather(
-    @SerializedName("temperature_2m")
-    val temperature: Double
+    @SerializedName("temperature_2m") val temperature: Double,
+    @SerializedName("weather_code") val weatherCode: Int,
+    @SerializedName("is_day") val isDay: Int
 )
 data class HourlyWeather(
     val time: List<String>,
-    @SerializedName("temperature_2m")
-    val temperatures: List<Double>
+    @SerializedName("temperature_2m") val temperatures: List<Double>,
+    @SerializedName("weather_code") val weatherCodes: List<Int>,
+    @SerializedName("is_day") val isDay: List<Int>
 )
 data class DailyWeather(
     val time: List<String>,
-    @SerializedName("temperature_2m_max")
-    val maxTemps: List<Double>,
-    @SerializedName("temperature_2m_min")
-    val minTemps: List<Double>
+    @SerializedName("temperature_2m_max") val maxTemps: List<Double>,
+    @SerializedName("temperature_2m_min") val minTemps: List<Double>,
+    @SerializedName("weather_code") val weatherCodes: List<Int>
 )

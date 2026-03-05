@@ -53,9 +53,9 @@ fun DailyForecastRow(day: DailyInfo){
         Text(day.date, modifier = Modifier.weight(1.5f), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
         Text(day.dayName, modifier = Modifier.weight(2.5f), color = Color.White, fontSize = 16.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
         Icon(
-            imageVector = Icons.Default.Cloud,
+            imageVector = day.icon,
             contentDescription = null,
-            tint = Color.White,
+            tint = day.tint,
             modifier = Modifier.weight(1f)
         )
         Text(

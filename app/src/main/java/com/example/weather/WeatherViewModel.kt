@@ -1,8 +1,19 @@
 package com.example.weather
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Dehaze
+import androidx.compose.material.icons.filled.Thunderstorm
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 //import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.ViewModel
 import java.time.format.TextStyle
@@ -18,14 +29,18 @@ import kotlin.math.roundToInt
 
 data class HourlyInfo(
     val time: String,
-    val temp: Int
+    val temp: Int,
+    val icon: ImageVector,
+    val tint: Color
 )
 
 data class DailyInfo(
     val date: String,
     val dayName: String,
     val maxTemp: Int,
-    val minTemp: Int
+    val minTemp: Int,
+    val icon: ImageVector,
+    val tint: Color
 )
 class WeatherViewModel : ViewModel() {
     private val api = Retrofit.Builder()
@@ -53,27 +68,31 @@ class WeatherViewModel : ViewModel() {
 
                 val timeList = response.hourly.time.subList(startIndex + 1, startIndex + 25)
                 val tempList = response.hourly.temperatures.subList(startIndex + 1, startIndex + 25)
+                val codeList = response.hourly.weatherCodes.subList(startIndex + 1, startIndex + 25)
+                val isDayList = response.hourly.isDay.subList(startIndex + 1, startIndex + 25)
 
-                val forecastPart = timeList.zip(tempList) { timeString, tempDouble ->
+                val forecastPart = timeList.indices.map { i ->
                     HourlyInfo(
-                        time = timeString.substringAfter("T"),
-                        temp = tempDouble.roundToInt()
+                        time = timeList[i].substringAfter("T"),
+                        temp = tempList[i].roundToInt(),
+                        icon = getWeatherIcon(codeList[i], isDayList[i]),
+                        tint = getWeatherColor(codeList[i])
                     )
                 }
-                hourlyForecast = listOf(HourlyInfo("Now", currentTemp)) + forecastPart
+
+                val currentIcon = getWeatherIcon(response.current.weatherCode, response.current.isDay)
+                val currentColor = getWeatherColor(response.current.weatherCode)
+                hourlyForecast = listOf(HourlyInfo("Now", currentTemp, currentIcon, currentColor)) + forecastPart
                 temperature = "$currentTemp"
 
-                // ---> ВОТ СЮДА МЫ ПЕРЕНЕСЛИ DAILY ПРОГНОЗ <---
                 val daily = response.daily
                 dailyForecast = daily.time.indices.map { i ->
-                    // Исправили parse через 's'
                     val localDate = LocalDate.parse(daily.time[i])
-                    // Исправили W в dayOfWeek
                     val dayOfWeek = localDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 
                     val dayLabel = when (localDate) {
                         LocalDate.now() -> "Today"
-                        LocalDate.now().plusDays(1) -> "Tomorrow" // Исправили L и слово Tomorrow
+                        LocalDate.now().plusDays(1) -> "Tomorrow"
                         else -> dayOfWeek
                     }
 
@@ -81,7 +100,9 @@ class WeatherViewModel : ViewModel() {
                         date = "${localDate.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} ${localDate.dayOfMonth}",
                         dayName = dayLabel,
                         maxTemp = daily.maxTemps[i].roundToInt(),
-                        minTemp = daily.minTemps[i].roundToInt()
+                        minTemp = daily.minTemps[i].roundToInt(),
+                        icon = getWeatherIcon(daily.weatherCodes[i], 1),
+                        tint = getWeatherColor(daily.weatherCodes[i])
                     )
                 }
 
@@ -100,5 +121,24 @@ class WeatherViewModel : ViewModel() {
     }
     var hourlyForecast by mutableStateOf<List<HourlyInfo>>(emptyList())
         private set
+
+    private fun getWeatherIcon(code: Int, isDay: Int = 1): ImageVector {
+        return when (code) {
+            0, 1 -> if (isDay == 1) Icons.Default.WbSunny else Icons.Default.DarkMode
+            2, 3 -> Icons.Default.Cloud
+            45, 48 -> Icons.Default.Dehaze
+            51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82 -> Icons.Default.WaterDrop
+            71, 73, 75, 77, 85, 86 -> Icons.Default.AcUnit
+            95, 96, 99 -> Icons.Default.Thunderstorm
+            else -> Icons.Default.Cloud
+        }
+    }
+
+    private fun getWeatherColor(code: Int): Color {
+        return when (code){
+            0, 1 -> Color(0xFFFFC107)
+            else -> Color.White
+        }
+    }
 }
 
