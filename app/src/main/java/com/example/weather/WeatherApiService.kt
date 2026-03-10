@@ -13,4 +13,12 @@ interface WeatherApiService {
         @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,weather_code",
         @Query("timezone") timezone: String = "auto"
     ): WeatherResponse
+
+        @GET("https://air-quality-api.open-meteo.com/v1/air-quality")
+        suspend fun getAirQuality(
+            @Query("latitude") lat: Double,
+            @Query("longitude") lon: Double,
+            @Query("current") current: String = "european_aqi"
+        ): AirQualityResponse
+
 }

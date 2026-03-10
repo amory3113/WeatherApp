@@ -24,3 +24,12 @@ data class DailyWeather(
     @SerializedName("temperature_2m_min") val minTemps: List<Double>,
     @SerializedName("weather_code") val weatherCodes: List<Int>
 )
+
+data class AirQualityResponse(
+    val current: CurrentAirQuality
+)
+
+data class CurrentAirQuality(
+    @SerializedName("air_quality")
+    val aqi: Int
+)

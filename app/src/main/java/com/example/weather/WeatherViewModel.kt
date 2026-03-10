@@ -43,6 +43,13 @@ data class DailyInfo(
     val tint: Color
 )
 class WeatherViewModel : ViewModel() {
+
+    var aqiValue by mutableStateOf(0)
+        private set
+
+    var aqiDescription by mutableStateOf("Loading...")
+        private set
+
     private val api = Retrofit.Builder()
         .baseUrl("https://api.open-meteo.com/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -108,6 +115,17 @@ class WeatherViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 temperature = "Error ${e.message}"
+            }
+
+            val aqResponse = api.getAirQuality(lat = lat, lon = lon)
+            aqiValue = aqResponse.current.aqi
+            aqiDescription = when (aqiValue){
+                in 0..20 -> "Good"
+                in 21..40 -> "Fair"
+                in 41..60 -> "Moderate"
+                in 61..80 -> "Poor"
+                in 81..100 -> "Very Poor"
+                else -> "Extremely Poor"
             }
         }
     }

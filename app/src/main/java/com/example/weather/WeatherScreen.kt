@@ -1,6 +1,7 @@
 package com.example.weather
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Settings
@@ -34,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.espresso.base.Default
+import com.example.weather.components.AirQualityCard
 import com.example.weather.components.DailyForecastCard
 import com.example.weather.components.HourlyForecastCard
 import com.example.weather.ui.theme.OpenSans
@@ -45,6 +49,8 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF1B2233))
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 32.dp),
     ) {
         Row(
             modifier = Modifier
@@ -110,6 +116,11 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                 HourlyForecastCard(hourlyList = viewModel.hourlyForecast)
                 Spacer(modifier = Modifier.height(12.dp))
                 DailyForecastCard(dailyList = viewModel.dailyForecast)
+                Spacer(modifier = Modifier.height(12.dp))
+                AirQualityCard(
+                    aqiValue = viewModel.aqiValue,
+                    aqiDescription = viewModel.aqiDescription
+                )
             }
         }
     }
