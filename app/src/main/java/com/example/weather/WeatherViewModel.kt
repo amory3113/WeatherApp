@@ -42,6 +42,16 @@ data class DailyInfo(
     val icon: ImageVector,
     val tint: Color
 )
+
+data class WeatherDetails(
+    val uvIndex: Int = 0,
+    val feelsLike: Int = 0,
+    val humidity: Int = 0,
+    val windSpeed: Int = 0,
+    val windDirectionStr: String = "",
+    val pressureMmHg: Int = 0,
+    val visibilityKm: Int = 0
+)
 class WeatherViewModel : ViewModel() {
 
     var aqiValue by mutableStateOf(0)
@@ -59,6 +69,9 @@ class WeatherViewModel : ViewModel() {
         private set
 
     var dailyForecast by mutableStateOf<List<DailyInfo>>(emptyList())
+        private set
+
+    var weatherDetails by mutableStateOf(WeatherDetails())
         private set
 
     fun fetchWeather(lat: Double, lon: Double) {
@@ -112,6 +125,22 @@ class WeatherViewModel : ViewModel() {
                         tint = getWeatherColor(daily.weatherCodes[i])
                     )
                 }
+
+                val current = response.current
+
+                val directions = listOf("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+                val dirIndex = (((current.windDirection + 22.5) / 45) % 8).toInt()
+                val windDirString = directions[dirIndex]
+
+                weatherDetails = WeatherDetails(
+                    uvIndex = response.daily.uvIndexMax.firstOrNull()?.roundToInt() ?: 0,
+                    feelsLike = current.feelsLike.roundToInt(),
+                    humidity = current.humidity,
+                    windSpeed = current.windSpeed.roundToInt(),
+                    windDirectionStr = windDirString,
+                    pressureMmHg = (current.pressure * 0.750062).roundToInt(),
+                    visibilityKm = (current.visibility / 1000).roundToInt()
+                )
 
             } catch (e: Exception) {
                 temperature = "Error ${e.message}"
