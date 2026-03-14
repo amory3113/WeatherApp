@@ -40,6 +40,7 @@ import androidx.test.espresso.base.Default
 import com.example.weather.components.AirQualityCard
 import com.example.weather.components.DailyForecastCard
 import com.example.weather.components.HourlyForecastCard
+import com.example.weather.components.SunRiseSetCard
 import com.example.weather.components.WeatherDetailsGrid
 import com.example.weather.ui.theme.OpenSans
 import com.example.weather.ui.theme.WeatherTheme
@@ -124,6 +125,8 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 WeatherDetailsGrid(details = viewModel.weatherDetails)
+                Spacer(modifier = Modifier.height(12.dp))
+                SunRiseSetCard(info = viewModel.sunPhase)
             }
         }
     }

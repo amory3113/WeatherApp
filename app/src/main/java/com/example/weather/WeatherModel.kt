@@ -30,7 +30,9 @@ data class DailyWeather(
     @SerializedName("temperature_2m_max") val maxTemps: List<Double>,
     @SerializedName("temperature_2m_min") val minTemps: List<Double>,
     @SerializedName("weather_code") val weatherCodes: List<Int>,
-    @SerializedName("uv_index_max") val uvIndexMax: List<Double>
+    @SerializedName("uv_index_max") val uvIndexMax: List<Double>,
+    val sunrise: List<String>,
+    val sunset: List<String>
 )
 
 data class AirQualityResponse(
@@ -38,6 +40,5 @@ data class AirQualityResponse(
 )
 
 data class CurrentAirQuality(
-    @SerializedName("air_quality")
-    val aqi: Int
+    @SerializedName("us_aqi") val aqi: Int?
 )

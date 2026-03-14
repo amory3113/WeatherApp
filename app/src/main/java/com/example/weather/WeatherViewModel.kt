@@ -52,6 +52,15 @@ data class WeatherDetails(
     val pressureMmHg: Int = 0,
     val visibilityKm: Int = 0
 )
+
+data class SunPhaseInfo(
+    val isDay: Boolean = true,
+    val leftLabel: String = "Sunrise",
+    val rightLabel: String = "Sunset",
+    val leftTime: String = "00:00",
+    val rightTime: String = "00:00",
+    val progress: Float = 0f
+)
 class WeatherViewModel : ViewModel() {
 
     var aqiValue by mutableStateOf(0)
@@ -72,6 +81,9 @@ class WeatherViewModel : ViewModel() {
         private set
 
     var weatherDetails by mutableStateOf(WeatherDetails())
+        private set
+
+    var sunPhase by mutableStateOf(SunPhaseInfo())
         private set
 
     fun fetchWeather(lat: Double, lon: Double) {
@@ -133,7 +145,7 @@ class WeatherViewModel : ViewModel() {
                 val windDirString = directions[dirIndex]
 
                 weatherDetails = WeatherDetails(
-                    uvIndex = response.daily.uvIndexMax.firstOrNull()?.roundToInt() ?: 0,
+                    uvIndex = current.currentUvIndex.roundToInt(),
                     feelsLike = current.feelsLike.roundToInt(),
                     humidity = current.humidity,
                     windSpeed = current.windSpeed.roundToInt(),
@@ -142,19 +154,59 @@ class WeatherViewModel : ViewModel() {
                     visibilityKm = (current.visibility / 1000).roundToInt()
                 )
 
+                val isDaytime = current.isDay == 1
+                val todaySunrise = response.daily.sunrise.first().substringAfter("T")
+                val todaySunset = response.daily.sunset.first().substringAfter("T")
+                val tomorrowSunrise = response.daily.sunrise.getOrNull(1)?.substringAfter("T") ?: todaySunrise
+
+                fun timeToMin(t: String) = t.split(":")[0].toInt() * 60 + t.split(":")[1].toInt()
+
+                val now = LocalDateTime.now()
+                val nowMin = now.hour * 60 + now.minute
+
+                sunPhase = if (isDaytime) {
+                    val startMin = timeToMin(todaySunrise)
+                    val endMin = timeToMin(todaySunset)
+                    val prog = (nowMin - startMin).toFloat() / (endMin - startMin).toFloat()
+
+                    SunPhaseInfo(
+                        isDay = true,
+                        leftLabel = "Sunrise", rightLabel = "Sunset",
+                        leftTime = todaySunrise, rightTime = todaySunset,
+                        progress = prog.coerceIn(0f, 1f)
+                    )
+                } else {
+                    val startMin = timeToMin(todaySunset)
+                    val endMin = timeToMin(tomorrowSunrise)
+
+                    val adjustedNow = if (nowMin < startMin) nowMin + (24 * 60) else nowMin
+                    val adjustedEnd = if (endMin < startMin) endMin + (24 * 60) else endMin
+
+                    val prog = (adjustedNow - startMin).toFloat() / (adjustedEnd - startMin).toFloat()
+
+                    SunPhaseInfo(
+                        isDay = false,
+                        leftLabel = "Sunset", rightLabel = "Sunrise",
+                        leftTime = todaySunset, rightTime = tomorrowSunrise,
+                        progress = prog.coerceIn(0f, 1f)
+                    )
+                }
+
             } catch (e: Exception) {
                 temperature = "Error ${e.message}"
             }
 
             val aqResponse = api.getAirQuality(lat = lat, lon = lon)
-            aqiValue = aqResponse.current.aqi
-            aqiDescription = when (aqiValue){
-                in 0..20 -> "Good"
-                in 21..40 -> "Fair"
-                in 41..60 -> "Moderate"
-                in 61..80 -> "Poor"
-                in 81..100 -> "Very Poor"
-                else -> "Extremely Poor"
+
+            aqiValue = aqResponse.current.aqi ?: 0
+
+            aqiDescription = when (aqiValue) {
+                in 0..50 -> "Good"
+                in 51..100 -> "Moderate"
+                in 101..150 -> "Poor"
+                in 151..200 -> "Unhealthy"
+                in 201..300 -> "Very Poor"
+                else -> "Hazardous"
             }
         }
     }

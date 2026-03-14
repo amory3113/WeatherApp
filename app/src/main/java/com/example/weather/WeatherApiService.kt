@@ -10,7 +10,7 @@ interface WeatherApiService {
         @Query("longitude") lon: Double,
         @Query("current") current: String = "temperature_2m,weather_code,is_day,relative_humidity_2m,apparent_temperature,pressure_msl,wind_speed_10m,wind_direction_10m,visibility,uv_index",
         @Query("hourly") hourly: String = "temperature_2m,weather_code,is_day",
-        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,weather_code,uv_index_max",
+        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,weather_code,uv_index_max,sunrise,sunset",
         @Query("timezone") timezone: String = "auto"
     ): WeatherResponse
 
@@ -18,7 +18,8 @@ interface WeatherApiService {
         suspend fun getAirQuality(
             @Query("latitude") lat: Double,
             @Query("longitude") lon: Double,
-            @Query("current") current: String = "european_aqi"
+            @Query("current") current: String = "us_aqi",
+            @Query("timezone") timezone: String = "auto"
         ): AirQualityResponse
 
 }
