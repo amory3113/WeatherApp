@@ -131,17 +131,6 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(
-                onClick = { },
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    tint = Color.White,
-                    painter = painterResource(id = R.drawable.ic_settings_thin),
-                    contentDescription = "Settings",
-                )
-            }
         }
         if (viewModel.isLoading && !viewModel.isRefreshing) {
             WeatherSkeleton()
