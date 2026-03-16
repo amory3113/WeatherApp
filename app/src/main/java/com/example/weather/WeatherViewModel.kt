@@ -18,6 +18,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import java.time.format.TextStyle
 import androidx.lifecycle.viewModelScope
+import com.example.weather.ui.theme.GradientBrightDay
+import com.example.weather.ui.theme.GradientDeepNight
+import com.example.weather.ui.theme.GradientDefault
+import com.example.weather.ui.theme.GradientOvercastDay
+import com.example.weather.ui.theme.GradientOvercastNight
+import com.example.weather.ui.theme.GradientRainy
+import com.example.weather.ui.theme.GradientSnowy
+import com.example.weather.ui.theme.GradientStormy
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -65,10 +73,8 @@ class WeatherViewModel : ViewModel() {
 
     var aqiValue by mutableStateOf(0)
         private set
-
     var aqiDescription by mutableStateOf("Loading...")
         private set
-
     private val api = Retrofit.Builder()
         .baseUrl("https://api.open-meteo.com/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -76,17 +82,31 @@ class WeatherViewModel : ViewModel() {
         .create(WeatherApiService::class.java)
     var temperature by mutableStateOf("Loading...")
         private set
-
     var dailyForecast by mutableStateOf<List<DailyInfo>>(emptyList())
         private set
-
     var weatherDetails by mutableStateOf(WeatherDetails())
         private set
-
     var sunPhase by mutableStateOf(SunPhaseInfo())
         private set
-
+    var isLoading by mutableStateOf(false)
+    private set
+    var bgColors by mutableStateOf(GradientDefault)
+        private set
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+    var isRefreshing by mutableStateOf(false)
+        private set
+    private var currentLat = 0.0
+    private var currentLon = 0.0
+    fun refreshWeather(){
+        isRefreshing = true
+        fetchWeather(currentLat, currentLon)
+    }
     fun fetchWeather(lat: Double, lon: Double) {
+        currentLat = lat
+        currentLon = lon
+        if (!isRefreshing) isLoading = true
+        errorMessage = null
         viewModelScope.launch {
             try {
                 val response = api.getWeather(lat = lat, lon = lon)
@@ -192,8 +212,23 @@ class WeatherViewModel : ViewModel() {
                     )
                 }
 
+                val code = current.weatherCode
+                val isDay = current.isDay == 1
+                bgColors = when (code) {
+                    0, 1 -> if (isDay) GradientBrightDay else GradientDeepNight
+                    2, 3 -> if (isDay) GradientOvercastDay else GradientOvercastNight
+                    in 51..67, in 80..82 -> GradientRainy
+                    in 71..77, 85, 86 -> GradientSnowy
+                    in 95..99 -> GradientStormy
+                    else -> GradientDefault
+                }
+
             } catch (e: Exception) {
                 temperature = "Error ${e.message}"
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+                isRefreshing = false
             }
 
             val aqResponse = api.getAirQuality(lat = lat, lon = lon)
@@ -207,6 +242,34 @@ class WeatherViewModel : ViewModel() {
                 in 151..200 -> "Unhealthy"
                 in 201..300 -> "Very Poor"
                 else -> "Hazardous"
+            }
+        }
+    }
+
+    fun searchCity(query: String){
+        if(query.isBlank()) return
+
+        isLoading = true
+        errorMessage = null
+
+        viewModelScope.launch{
+            try{
+                val response = api.searchCity(query)
+                val firstResult = response.results?.firstOrNull()
+                if(firstResult != null){
+                    cityName = if(firstResult.country != null) {
+                        "${firstResult.name}, ${firstResult.country}"
+                    } else {
+                        firstResult.name
+                    }
+                    fetchWeather(firstResult.latitude, firstResult.longitude)
+                } else {
+                    isLoading = false
+                    errorMessage = "City '$query' not found'"
+                }
+            } catch (e: Exception){
+                isLoading = false
+                errorMessage = "Search error ${e.message}"
             }
         }
     }
@@ -235,7 +298,7 @@ class WeatherViewModel : ViewModel() {
 
     private fun getWeatherColor(code: Int): Color {
         return when (code){
-            0, 1 -> Color(0xFFFFC107)
+            0, 1 -> Color.Yellow
             else -> Color.White
         }
     }

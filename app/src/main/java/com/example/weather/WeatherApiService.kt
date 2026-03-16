@@ -22,4 +22,12 @@ interface WeatherApiService {
             @Query("timezone") timezone: String = "auto"
         ): AirQualityResponse
 
+        @GET("https://geocoding-api.open-meteo.com/v1/search")
+        suspend fun searchCity(
+            @Query("name") query: String,
+            @Query("count") count: Int = 1,
+            @Query("language") language: String = "en",
+            @Query("format") format: String = "json"
+        ) : GeocodingResponse
+
 }

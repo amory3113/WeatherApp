@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weather.WeatherDetails
+import com.example.weather.ui.theme.OpenSans
 
 @Composable
 fun WeatherDetailsGrid(details: WeatherDetails) {
@@ -59,8 +60,8 @@ fun SmallDetailCard(icon: ImageVector, title: String, value: String, modifier: M
             Icon(imageVector = icon, contentDescription = null, tint = Color.LightGray, modifier = Modifier.size(24.dp))
 
             Column {
-                Text(text = title, color = Color.Gray, fontSize = 12.sp)
-                Text(text = value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(text = title, color = Color.Gray, fontSize = 12.sp, fontFamily = OpenSans)
+                Text(text = value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = OpenSans)
             }
         }
     }

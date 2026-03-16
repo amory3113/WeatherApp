@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.weather.ui.theme.GradientAirQuality
 import com.example.weather.ui.theme.OpenSans
 
 @Composable
@@ -56,13 +57,7 @@ fun AirQualityCard(aqiValue: Int, aqiDescription: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val gradientColors = listOf(
-                Color(0xFF00E676),
-                Color(0xFFFFEB3B),
-                Color(0xFFFF9800),
-                Color(0xFFE91E63),
-                Color(0xFF9C27B0)
-            )
+            val gradientColors = GradientAirQuality
             val safeAqi = aqiValue.coerceIn(0, 100)
             val dotBias = (safeAqi / 100f) * 2f - 1f
 

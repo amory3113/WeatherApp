@@ -57,11 +57,10 @@ fun SunRiseSetCard(info: SunPhaseInfo) {
                 Icon(
                     imageVector = if (info.isDay) Icons.Default.WbSunny else Icons.Default.DarkMode,
                     contentDescription = null,
-                    tint = if (info.isDay) Color(0xFFFFC107) else Color.White,
+                    tint = if (info.isDay) Color.Yellow else Color.White,
                     modifier = Modifier
                         .align(BiasAlignment(horizontalBias = iconBias, verticalBias = 0f))
                         .size(24.dp)
-                        .background(Color(0xFF1B2233), RoundedCornerShape(50))
                 )
             }
 
