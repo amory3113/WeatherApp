@@ -8,13 +8,11 @@ import androidx.compose.material.icons.filled.Dehaze
 import androidx.compose.material.icons.filled.Thunderstorm
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-//import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.ViewModel
 import java.time.format.TextStyle
 import androidx.lifecycle.viewModelScope
@@ -26,12 +24,12 @@ import com.example.weather.ui.theme.GradientOvercastNight
 import com.example.weather.ui.theme.GradientRainy
 import com.example.weather.ui.theme.GradientSnowy
 import com.example.weather.ui.theme.GradientStormy
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -96,6 +94,9 @@ class WeatherViewModel : ViewModel() {
         private set
     var isRefreshing by mutableStateOf(false)
         private set
+    var searchResults by mutableStateOf<List<CityResult>>(emptyList())
+        private set
+    private var searchJob: Job? = null
     private var currentLat = 0.0
     private var currentLon = 0.0
     fun refreshWeather(){
@@ -112,11 +113,9 @@ class WeatherViewModel : ViewModel() {
                 val response = api.getWeather(lat = lat, lon = lon)
 
                 val currentTemp = response.current.temperature.roundToInt()
-                val currentHour = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0)
-                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
-                val currentHourString = currentHour.format(formatter)
+                val currentHourPrefix = response.current.time.substringBefore(":")
 
-                val startIndex = response.hourly.time.indexOfFirst { it == currentHourString }.coerceAtLeast(0)
+                val startIndex = response.hourly.time.indexOfFirst { it.startsWith(currentHourPrefix) }.coerceAtLeast(0)
 
                 val timeList = response.hourly.time.subList(startIndex + 1, startIndex + 25)
                 val tempList = response.hourly.temperatures.subList(startIndex + 1, startIndex + 25)
@@ -181,8 +180,8 @@ class WeatherViewModel : ViewModel() {
 
                 fun timeToMin(t: String) = t.split(":")[0].toInt() * 60 + t.split(":")[1].toInt()
 
-                val now = LocalDateTime.now()
-                val nowMin = now.hour * 60 + now.minute
+                val serverTimeOnly = current.time.substringAfter("T")
+                val nowMin = timeToMin(serverTimeOnly)
 
                 sunPhase = if (isDaytime) {
                     val startMin = timeToMin(todaySunrise)
@@ -245,34 +244,6 @@ class WeatherViewModel : ViewModel() {
             }
         }
     }
-
-    fun searchCity(query: String){
-        if(query.isBlank()) return
-
-        isLoading = true
-        errorMessage = null
-
-        viewModelScope.launch{
-            try{
-                val response = api.searchCity(query)
-                val firstResult = response.results?.firstOrNull()
-                if(firstResult != null){
-                    cityName = if(firstResult.country != null) {
-                        "${firstResult.name}, ${firstResult.country}"
-                    } else {
-                        firstResult.name
-                    }
-                    fetchWeather(firstResult.latitude, firstResult.longitude)
-                } else {
-                    isLoading = false
-                    errorMessage = "City '$query' not found'"
-                }
-            } catch (e: Exception){
-                isLoading = false
-                errorMessage = "Search error ${e.message}"
-            }
-        }
-    }
     fun showLocationError(message: String){
         temperature = message
     }
@@ -281,9 +252,37 @@ class WeatherViewModel : ViewModel() {
     fun setCity(city: String) {
         cityName = city
     }
+    fun getCitySuggestions(query: String) {
+        searchJob?.cancel()
+        if (query.isBlank()) {
+            searchResults = emptyList()
+            return
+        }
+
+        searchJob = viewModelScope.launch {
+            delay(100)
+            try {
+                val response = api.searchCity(query)
+                searchResults = response.results ?: emptyList()
+            } catch (e: Exception) {
+                searchResults = emptyList()
+            }
+        }
+    }
+    fun clearSuggestions() {
+        searchResults = emptyList()
+    }
+    fun selectCity(city: CityResult) {
+        searchResults = emptyList()
+        isLoading = true
+        errorMessage = null
+
+        cityName = if (city.country != null) "${city.name}, ${city.country}" else city.name
+
+        fetchWeather(city.latitude, city.longitude)
+    }
     var hourlyForecast by mutableStateOf<List<HourlyInfo>>(emptyList())
         private set
-
     private fun getWeatherIcon(code: Int, isDay: Int = 1): ImageVector {
         return when (code) {
             0, 1 -> if (isDay == 1) Icons.Default.WbSunny else Icons.Default.DarkMode
@@ -295,7 +294,6 @@ class WeatherViewModel : ViewModel() {
             else -> Icons.Default.Cloud
         }
     }
-
     private fun getWeatherColor(code: Int): Color {
         return when (code){
             0, 1 -> Color.Yellow

@@ -9,16 +9,17 @@ data class WeatherResponse(
 )
 
 data class GeocodingResponse(
-    val results: List<CityResults>?
+    val results: List<CityResult>?
 )
 
-data class CityResults(
+data class CityResult(
     val name: String,
     val latitude: Double,
     val longitude: Double,
     val country: String?
 )
 data class CurrentWeather(
+    val time: String,
     @SerializedName("temperature_2m") val temperature: Double,
     @SerializedName("weather_code") val weatherCode: Int,
     @SerializedName("is_day") val isDay: Int,
