@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.weather.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weather.WeatherDetails
@@ -29,18 +32,18 @@ fun WeatherDetailsGrid(details: WeatherDetails) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            SmallDetailCard(Icons.Default.WbSunny, "UV", "${details.uvIndex}", Modifier.weight(1f))
-            SmallDetailCard(Icons.Default.Thermostat, "Feels like", "${details.feelsLike}°", Modifier.weight(1f))
-            SmallDetailCard(Icons.Default.WaterDrop, "Humidity", "${details.humidity}%", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.WbSunny, stringResource(id = R.string.uv_index), "${details.uvIndex}", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.Thermostat, stringResource(id = R.string.feels_like), "${details.feelsLike}°", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.WaterDrop, stringResource(id = R.string.humidity), "${details.humidity}%", Modifier.weight(1f))
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            SmallDetailCard(Icons.Default.Air, "${details.windDirectionStr} wind", "${details.windSpeed} km/h", Modifier.weight(1f))
-            SmallDetailCard(Icons.Default.Compress, "Pressure", "${details.pressureMmHg} mmHg", Modifier.weight(1f))
-            SmallDetailCard(Icons.Default.Visibility, "Visibility", "${details.visibilityKm} km", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.Air, "${details.windDirectionStr} ${stringResource(id = R.string.wind)}", "${details.windSpeed} ${stringResource(id = R.string.km_h)}", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.Compress, stringResource(id = R.string.pressure), "${details.pressureMmHg} ${stringResource(id = R.string.mmHg)}", Modifier.weight(1f))
+            SmallDetailCard(Icons.Default.Visibility, stringResource(id = R.string.visibility), "${details.visibilityKm} ${stringResource(id = R.string.km)}", Modifier.weight(1f))
         }
     }
 }
@@ -57,11 +60,11 @@ fun SmallDetailCard(icon: ImageVector, title: String, value: String, modifier: M
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = Color.LightGray, modifier = Modifier.size(24.dp))
+            Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
 
             Column {
-                Text(text = title, color = Color.Gray, fontSize = 12.sp, fontFamily = OpenSans)
-                Text(text = value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = OpenSans)
+                Text(text = title, color = Color.LightGray, fontSize = 12.sp, fontFamily = OpenSans, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(text = value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = OpenSans, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }

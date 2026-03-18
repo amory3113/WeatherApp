@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Погода</string>
+    <string name="search_placeholder">Поиск города...</string>
+    <string name="uv_index">UV</string>
+    <string name="feels_like">Ощущается как</string>
+    <string name="humidity">Влажность</string>
+    <string name="pressure">Давление</string>
+    <string name="visibility">Видимость</string>
+    <string name="sunrise">Рассвет</string>
+    <string name="sunset">Закат</string>
+    <string name="wind">Ветер</string>
+
+    <string name="now">Сейчас</string>
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+
+    <string name="air_quality">Качество воздуха</string>
+    <string name="aqi_good">Хорошее</string>
+    <string name="aqi_moderate">Умеренное</string>
+    <string name="aqi_poor">Плохое</string>
+    <string name="aqi_unhealthy">Вредное</string>
+    <string name="aqi_very_poor">Очень плохое</string>
+    <string name="aqi_hazardous">Опасное</string>
+
+    <string name="km_h">км/ч</string>
+    <string name="km">км</string>
+    <string name="mmHg">мбар</string>
+</resources>

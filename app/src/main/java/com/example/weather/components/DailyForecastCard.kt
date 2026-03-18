@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weather.DailyInfo
@@ -51,7 +52,7 @@ fun DailyForecastRow(day: DailyInfo){
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(day.date, modifier = Modifier.weight(1.5f), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
-        Text(day.dayName, modifier = Modifier.weight(2.5f), color = Color.White, fontSize = 16.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold)
+        Text(day.dayName.asString(), modifier = Modifier.weight(2.5f), color = Color.White, fontSize = 16.sp, fontFamily = OpenSans, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Icon(
             imageVector = day.icon,
             contentDescription = null,

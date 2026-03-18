@@ -44,7 +44,7 @@ fun HourlyForecastCard(hourlyList: List<HourlyInfo>){
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-                    Text(text = info.time, color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
+                    Text(text = info.time.asString(), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
                     Spacer(modifier = Modifier.height(4.dp))
                     Icon(imageVector = info.icon, contentDescription = null, tint = info.tint)
                     Spacer(modifier = Modifier.height(4.dp))

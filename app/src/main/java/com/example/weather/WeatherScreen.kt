@@ -1,6 +1,5 @@
 package com.example.weather
 
-import android.R.attr.focusable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,6 +48,7 @@ import com.example.weather.components.DailyForecastCard
 import com.example.weather.components.HourlyForecastCard
 import com.example.weather.components.SunRiseSetCard
 import com.example.weather.components.WeatherDetailsGrid
+import androidx.compose.ui.res.stringResource
 import com.example.weather.refresh.WeatherSkeleton
 import com.example.weather.ui.theme.DropDownBg
 import com.example.weather.ui.theme.OpenSans
@@ -95,7 +95,7 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                         searchText = it
                         viewModel.getCitySuggestions(it)
                     },
-                    placeholder = { Text(text = "Search...", color = Color.Gray, fontSize = 14.sp, fontFamily = OpenSans) },
+                    placeholder = { Text(text = stringResource(id = R.string.search_placeholder), color = Color.Gray, fontSize = 14.sp, fontFamily = OpenSans) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
@@ -191,7 +191,7 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
                     Spacer(modifier = Modifier.height(12.dp))
                     AirQualityCard(
                         aqiValue = viewModel.aqiValue,
-                        aqiDescription = viewModel.aqiDescription
+                        aqiDescription = viewModel.aqiDescription.asString()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     WeatherDetailsGrid(details = viewModel.weatherDetails)

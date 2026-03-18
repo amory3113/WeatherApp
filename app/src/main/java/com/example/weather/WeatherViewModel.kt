@@ -8,11 +8,13 @@ import androidx.compose.material.icons.filled.Dehaze
 import androidx.compose.material.icons.filled.Thunderstorm
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import java.time.format.TextStyle
 import androidx.lifecycle.viewModelScope
@@ -34,7 +36,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 data class HourlyInfo(
-    val time: String,
+    val time: UiText,
     val temp: Int,
     val icon: ImageVector,
     val tint: Color
@@ -42,7 +44,7 @@ data class HourlyInfo(
 
 data class DailyInfo(
     val date: String,
-    val dayName: String,
+    val dayName: UiText,
     val maxTemp: Int,
     val minTemp: Int,
     val icon: ImageVector,
@@ -61,17 +63,29 @@ data class WeatherDetails(
 
 data class SunPhaseInfo(
     val isDay: Boolean = true,
-    val leftLabel: String = "Sunrise",
-    val rightLabel: String = "Sunset",
+    val leftLabel: UiText = UiText.DynamicString("Sunrise"),
+    val rightLabel: UiText = UiText.DynamicString("Sunset"),
     val leftTime: String = "00:00",
     val rightTime: String = "00:00",
     val progress: Float = 0f
 )
+
+sealed class UiText {
+    data class DynamicString(val value: String): UiText()
+    data class StringResource(val resId: Int) : UiText()
+    @Composable
+    fun asString(): String{
+        return when (this){
+            is DynamicString -> value
+            is StringResource -> stringResource(resId)
+        }
+    }
+}
 class WeatherViewModel : ViewModel() {
 
     var aqiValue by mutableStateOf(0)
         private set
-    var aqiDescription by mutableStateOf("Loading...")
+    var aqiDescription by mutableStateOf<UiText>(UiText.DynamicString("Loading..."))
         private set
     private val api = Retrofit.Builder()
         .baseUrl("https://api.open-meteo.com/")
@@ -124,7 +138,7 @@ class WeatherViewModel : ViewModel() {
 
                 val forecastPart = timeList.indices.map { i ->
                     HourlyInfo(
-                        time = timeList[i].substringAfter("T"),
+                        time = UiText.DynamicString(timeList[i].substringAfter("T")),
                         temp = tempList[i].roundToInt(),
                         icon = getWeatherIcon(codeList[i], isDayList[i]),
                         tint = getWeatherColor(codeList[i])
@@ -133,22 +147,22 @@ class WeatherViewModel : ViewModel() {
 
                 val currentIcon = getWeatherIcon(response.current.weatherCode, response.current.isDay)
                 val currentColor = getWeatherColor(response.current.weatherCode)
-                hourlyForecast = listOf(HourlyInfo("Now", currentTemp, currentIcon, currentColor)) + forecastPart
+                hourlyForecast = listOf(HourlyInfo(UiText.StringResource(R.string.now), currentTemp, currentIcon, currentColor)) + forecastPart
                 temperature = "$currentTemp"
 
                 val daily = response.daily
                 dailyForecast = daily.time.indices.map { i ->
                     val localDate = LocalDate.parse(daily.time[i])
-                    val dayOfWeek = localDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+                    val dayOfWeek = localDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
 
                     val dayLabel = when (localDate) {
-                        LocalDate.now() -> "Today"
-                        LocalDate.now().plusDays(1) -> "Tomorrow"
-                        else -> dayOfWeek
+                        LocalDate.now() -> UiText.StringResource(R.string.today)
+                        LocalDate.now().plusDays(1) -> UiText.StringResource(R.string.tomorrow)
+                        else -> UiText.DynamicString(dayOfWeek)
                     }
 
                     DailyInfo(
-                        date = "${localDate.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} ${localDate.dayOfMonth}",
+                        date = "${localDate.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${localDate.dayOfMonth}",
                         dayName = dayLabel,
                         maxTemp = daily.maxTemps[i].roundToInt(),
                         minTemp = daily.minTemps[i].roundToInt(),
@@ -190,7 +204,8 @@ class WeatherViewModel : ViewModel() {
 
                     SunPhaseInfo(
                         isDay = true,
-                        leftLabel = "Sunrise", rightLabel = "Sunset",
+                        leftLabel = UiText.StringResource(R.string.sunrise),
+                        rightLabel = UiText.StringResource(R.string.sunset),
                         leftTime = todaySunrise, rightTime = todaySunset,
                         progress = prog.coerceIn(0f, 1f)
                     )
@@ -205,7 +220,8 @@ class WeatherViewModel : ViewModel() {
 
                     SunPhaseInfo(
                         isDay = false,
-                        leftLabel = "Sunset", rightLabel = "Sunrise",
+                        leftLabel = UiText.StringResource(R.string.sunrise),
+                        rightLabel = UiText.StringResource(R.string.sunset),
                         leftTime = todaySunset, rightTime = tomorrowSunrise,
                         progress = prog.coerceIn(0f, 1f)
                     )
@@ -235,12 +251,12 @@ class WeatherViewModel : ViewModel() {
             aqiValue = aqResponse.current.aqi ?: 0
 
             aqiDescription = when (aqiValue) {
-                in 0..50 -> "Good"
-                in 51..100 -> "Moderate"
-                in 101..150 -> "Poor"
-                in 151..200 -> "Unhealthy"
-                in 201..300 -> "Very Poor"
-                else -> "Hazardous"
+                in 0..50 -> UiText.StringResource(R.string.aqi_good)
+                in 51..100 -> UiText.StringResource(R.string.aqi_moderate)
+                in 101..150 -> UiText.StringResource(R.string.aqi_poor)
+                in 151..200 -> UiText.StringResource(R.string.aqi_unhealthy)
+                in 201..300 -> UiText.StringResource(R.string.aqi_very_poor)
+                else -> UiText.StringResource(R.string.aqi_hazardous)
             }
         }
     }
@@ -262,7 +278,8 @@ class WeatherViewModel : ViewModel() {
         searchJob = viewModelScope.launch {
             delay(100)
             try {
-                val response = api.searchCity(query)
+                val currentLang = java.util.Locale.getDefault().language
+                val response = api.searchCity(query = query, language = currentLang)
                 searchResults = response.results ?: emptyList()
             } catch (e: Exception) {
                 searchResults = emptyList()

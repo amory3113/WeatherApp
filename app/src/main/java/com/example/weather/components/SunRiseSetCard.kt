@@ -33,8 +33,8 @@ fun SunRiseSetCard(info: SunPhaseInfo) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = info.leftLabel, color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
-                Text(text = info.rightLabel, color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
+                Text(text = info.leftLabel.asString(), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
+                Text(text = info.rightLabel.asString(), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

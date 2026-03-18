@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Погода</string>
+    <string name="search_placeholder">Пошук міста...</string>
+    <string name="uv_index">UV</string>
+    <string name="feels_like">Відчувається як</string>
+    <string name="humidity">Вологість</string>
+    <string name="pressure">Тиск</string>
+    <string name="visibility">Видимість</string>
+    <string name="sunrise">Схід сонця</string>
+    <string name="sunset">Захід сонця</string>
+    <string name="wind">Вітер</string>
+
+    <string name="now">Зараз</string>
+    <string name="today">Сьогодні</string>
+    <string name="tomorrow">Завтра</string>
+
+    <string name="air_quality">Якість повітря</string>
+    <string name="aqi_good">Добре</string>
+    <string name="aqi_moderate">Помірне</string>
+    <string name="aqi_poor">Погане</string>
+    <string name="aqi_unhealthy">Шкідливе</string>
+    <string name="aqi_very_poor">Дуже погане</string>
+    <string name="aqi_hazardous">Небезпечне</string>
+
+    <string name="km_h">км/год</string>
+    <string name="km">км</string>
+    <string name="mmHg">ммрс</string>
+</resources>

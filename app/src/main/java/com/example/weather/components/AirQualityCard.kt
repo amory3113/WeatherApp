@@ -15,12 +15,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.weather.R
 import com.example.weather.ui.theme.GradientAirQuality
 import com.example.weather.ui.theme.OpenSans
 
@@ -42,7 +44,7 @@ fun AirQualityCard(aqiValue: Int, aqiDescription: String) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Air Quality", color = Color.Gray, fontSize = 14.sp, fontFamily = OpenSans)
+                Text(text = stringResource(id = R.string.air_quality), color = Color.White, fontSize = 14.sp, fontFamily = OpenSans)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
